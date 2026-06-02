@@ -1,13 +1,27 @@
-const emailPattern = /^\S+@\S+\.\S+$/;
+import { z } from 'zod';
 
-export function validateEmail(email: string) {
-  return emailPattern.test(email);
-}
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must contain at least 8 characters.');
 
-export function validatePassword(password: string) {
-  return password.length >= 6;
-}
+export const loginSchema = z.object({
+  email: z.email('Enter a valid email address.'),
+  password: passwordSchema,
+  deviceInfo: z.string().min(1),
+});
 
-export function validateOtp(code: string) {
-  return /^[0-9]{6}$/.test(code.trim());
-}
+export const registerSchema = z.object({
+  email: z.email('Enter a valid email address.'),
+  password: passwordSchema,
+  firstName: z.string().min(1, 'First name is required.'),
+  lastName: z.string().min(1, 'Last name is required.'),
+});
+
+export const otpSchema = z.object({
+  email: z.email('Enter a valid email address.'),
+  otp: z.string().regex(/^[0-9]{6}$/, 'Enter the 6-digit verification code.'),
+});
+
+export const resendOtpSchema = z.object({
+  email: z.email('Enter a valid email address.'),
+});

@@ -1,25 +1,48 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowRight, Lock, Mail, UserRound } from 'lucide-react';
-import { useRegisterMutation } from '../api/auth.query';
-import { useAuthStore } from '../stores/auth.store';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { useForm } from '@tanstack/react-form';
+import { ArrowRight, Lock, Mail, UserRound } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useRegisterMutation } from '../api/auth.query';
+import { registerSchema } from '../schemas/auth.schema';
+import { useAuthStore } from '../stores/auth.store';
+
+function fieldError(errors: unknown[]) {
+  return errors
+    .map((error) =>
+      typeof error === 'object' && error && 'message' in error
+        ? String(error.message)
+        : String(error),
+    )
+    .join(', ');
+}
 
 export function RegisterForm() {
   const router = useRouter();
   const setEmail = useAuthStore((state) => state.setEmail);
-
-  const [fullName, setFullName] = useState('');
-  const [email, setLocalEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const mutation = useRegisterMutation();
+
+  const form = useForm({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: registerSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const response = await mutation.mutateAsync(value);
+      setEmail(response.data.email);
+      router.push('/otp');
+    },
+  });
 
   return (
     <Card className="max-w-md p-6 sm:p-8">
@@ -39,94 +62,145 @@ export function RegisterForm() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            mutation.mutate(
-              { fullName, email, password, confirmPassword },
-              {
-                onSuccess: (data) => {
-                  setEmail(data.email);
-                  router.push('/otp');
-                },
-              },
-            );
+            void form.handleSubmit();
           }}
           className="space-y-5"
         >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <div className="relative">
-                <UserRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(event) => setFullName(event.target.value)}
-                  placeholder="Jordan Lee"
-                  className="pl-11"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setLocalEmail(event.target.value)}
-                  placeholder="you@nodemind.app"
-                  className="pl-11"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Create a password"
-                  className="pl-11"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder="Repeat your password"
-                  className="pl-11"
-                  required
-                />
-              </div>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <form.Field name="firstName">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>First name</Label>
+                  <div className="relative">
+                    <UserRound className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      placeholder="Nguyen Van"
+                      className="pl-11"
+                      required
+                    />
+                  </div>
+                  {field.state.meta.errors.length ? (
+                    <p className="text-sm text-rose-600">
+                      {fieldError(field.state.meta.errors)}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field name="lastName">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Last name</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    placeholder="A"
+                    required
+                  />
+                  {field.state.meta.errors.length ? (
+                    <p className="text-sm text-rose-600">
+                      {fieldError(field.state.meta.errors)}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </form.Field>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={mutation.isPending}
+          <div className="space-y-4">
+            <form.Field name="email">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Email</Label>
+                  <div className="relative">
+                    <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      placeholder="you@nodemind.app"
+                      className="pl-11"
+                      required
+                    />
+                  </div>
+                  {field.state.meta.errors.length ? (
+                    <p className="text-sm text-rose-600">
+                      {fieldError(field.state.meta.errors)}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field name="password">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor={field.name}>Password</Label>
+                  <div className="relative">
+                    <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="password"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      placeholder="Create a password"
+                      className="pl-11"
+                      required
+                    />
+                  </div>
+                  {field.state.meta.errors.length ? (
+                    <p className="text-sm text-rose-600">
+                      {fieldError(field.state.meta.errors)}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <form.Subscribe
+            selector={(state) => ({
+              canSubmit: state.canSubmit,
+              isSubmitting: state.isSubmitting,
+            })}
           >
-            {mutation.isPending ? (
-              'Registering...'
-            ) : (
-              <>
-                Register
-                <ArrowRight className="h-4 w-4" />
-              </>
+            {({ canSubmit, isSubmitting }) => (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!canSubmit || isSubmitting || mutation.isPending}
+              >
+                {isSubmitting || mutation.isPending ? (
+                  'Registering...'
+                ) : (
+                  <>
+                    Register
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
+          </form.Subscribe>
         </form>
 
         <div className="flex items-center gap-3 text-sm font-medium text-slate-500">

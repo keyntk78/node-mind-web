@@ -1,6 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { loginUser, registerUser, resendOtp, verifyOtp } from './auth.api';
-import type { LoginPayload, RegisterPayload } from '../types/auth.type';
+import type {
+  LoginPayload,
+  OtpPayload,
+  RegisterPayload,
+  ResendOtpPayload,
+} from '../types/auth.type';
 
 export function useLoginMutation() {
   return useMutation({
@@ -16,12 +21,12 @@ export function useRegisterMutation() {
 
 export function useVerifyOtpMutation() {
   return useMutation({
-    mutationFn: (code: string) => verifyOtp(code),
+    mutationFn: (payload: OtpPayload) => verifyOtp(payload),
   });
 }
 
 export function useResendOtpMutation() {
   return useMutation({
-    mutationFn: (email: string) => resendOtp(email),
+    mutationFn: (payload: ResendOtpPayload) => resendOtp(payload),
   });
 }

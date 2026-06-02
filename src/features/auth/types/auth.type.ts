@@ -1,28 +1,52 @@
-export type LoginPayload = {
-  email: string;
-  password: string;
+import type { z } from 'zod';
+import type {
+  loginSchema,
+  otpSchema,
+  registerSchema,
+  resendOtpSchema,
+} from '../schemas/auth.schema';
+
+export type LoginPayload = z.infer<typeof loginSchema>;
+export type RegisterPayload = z.infer<typeof registerSchema>;
+export type OtpPayload = z.infer<typeof otpSchema>;
+export type ResendOtpPayload = z.infer<typeof resendOtpSchema>;
+
+export type ApiResponse<TData> = {
+  message: string;
+  data: TData;
 };
 
-export type RegisterPayload = {
-  fullName: string;
+export type AuthUser = {
+  id: string;
   email: string;
-  password: string;
-  confirmPassword: string;
+  isVerified: boolean;
+  mfaEnabled?: boolean;
+};
+
+export type WorkspaceContext = {
+  id: string;
+  name: string;
+  slug: string;
+  membership: string;
+};
+
+export type RegisterResponse = {
+  userId: string;
+  email: string;
+  isVerified: boolean;
 };
 
 export type AuthSession = {
-  email: string;
-  token: string;
-};
-
-export type RegisterSession = AuthSession & {
-  fullName: string;
-};
-
-export type OtpVerification = {
-  verified: boolean;
+  accessToken: string;
+  refreshToken: string;
+  tokenType: 'Bearer' | string;
+  expiresIn: number;
+  user: AuthUser;
+  workspace: WorkspaceContext;
+  roles?: string[];
 };
 
 export type ResendOtpResponse = {
-  sentTo: string;
+  email: string;
+  expiresIn: number;
 };
