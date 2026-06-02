@@ -179,3 +179,42 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--sidebar-foreground) 28%,
+        transparent
+      )
+      transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+      in srgb,
+      var(--sidebar-foreground) 18%,
+      transparent
+    );
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+      in srgb,
+      var(--sidebar-foreground) 32%,
+      transparent
+    );
+  }
+}
