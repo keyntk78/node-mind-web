@@ -37,6 +37,29 @@ input {
   font: inherit;
 }
 
+.node-mind-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 99, 235, 0.18) transparent;
+}
+
+.node-mind-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.node-mind-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.node-mind-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.16);
+  border-radius: 9999px;
+}
+
+.node-mind-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.28);
+}
+
 .navigation-progress {
   position: fixed;
   top: 0;

@@ -46,7 +46,7 @@ export function LoginForm() {
       setEmail(response.data.user.email);
       setSession(response.data);
       startNavigationProgress();
-      router.replace('/workspace');
+      router.replace('/kiet');
     },
   });
 

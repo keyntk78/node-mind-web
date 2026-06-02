@@ -50,7 +50,7 @@ export function OtpForm() {
       setEmail(response.data.user.email);
       setSession(response.data);
       startNavigationProgress();
-      router.replace('/workspace');
+      router.replace('/kiet');
     },
   });
 
