@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { loginUser, registerUser, resendOtp, verifyOtp } from './auth.api';
 import type {
   LoginPayload,
   OtpPayload,
   RegisterPayload,
   ResendOtpPayload,
 } from '../types/auth.type';
+import { loginUser, registerUser, resendOtp, verifyOtp } from './auth.api';
 
 export function useLoginMutation() {
   return useMutation({

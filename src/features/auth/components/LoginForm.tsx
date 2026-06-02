@@ -1,16 +1,18 @@
 'use client';
 
-import { useForm } from '@tanstack/react-form';
-import Link from 'next/link';
-import { ArrowRight, Lock, Mail } from 'lucide-react';
-import { useLoginMutation } from '../api/auth.query';
-import { loginSchema } from '../schemas/auth.schema';
-import { useAuthStore } from '../stores/auth.store';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { startNavigationProgress } from '@/shared/lib/navigation-progress';
+import { useForm } from '@tanstack/react-form';
+import { ArrowRight, Lock, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useLoginMutation } from '../api/auth.query';
+import { loginSchema } from '../schemas/auth.schema';
+import { useAuthStore } from '../stores/auth.store';
 
 function fieldError(errors: unknown[]) {
   return errors
@@ -23,6 +25,7 @@ function fieldError(errors: unknown[]) {
 }
 
 export function LoginForm() {
+  const router = useRouter();
   const setEmail = useAuthStore((state) => state.setEmail);
   const setSession = useAuthStore((state) => state.setSession);
   const rememberMe = useAuthStore((state) => state.rememberMe);
@@ -42,6 +45,8 @@ export function LoginForm() {
       const response = await mutation.mutateAsync(value);
       setEmail(response.data.user.email);
       setSession(response.data);
+      startNavigationProgress();
+      router.replace('/workspace');
     },
   });
 
@@ -73,11 +78,11 @@ export function LoginForm() {
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Email</Label>
                   <div className="relative">
-                    <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id={field.name}
                       name={field.name}
-                      type="email"
+                      type="text"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) =>
@@ -85,7 +90,6 @@ export function LoginForm() {
                       }
                       placeholder="you@nodemind.app"
                       className="pl-11"
-                      required
                     />
                   </div>
                   {field.state.meta.errors.length ? (
@@ -102,7 +106,7 @@ export function LoginForm() {
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Password</Label>
                   <div className="relative">
-                    <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id={field.name}
                       name={field.name}
@@ -114,7 +118,6 @@ export function LoginForm() {
                       }
                       placeholder="Enter your password"
                       className="pl-11"
-                      required
                     />
                   </div>
                   {field.state.meta.errors.length ? (
@@ -150,7 +153,7 @@ export function LoginForm() {
             {({ canSubmit, isSubmitting }) => (
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full cursor-pointer"
                 disabled={!canSubmit || isSubmitting || mutation.isPending}
               >
                 {isSubmitting || mutation.isPending ? (
@@ -166,13 +169,22 @@ export function LoginForm() {
           </form.Subscribe>
         </form>
 
+        {mutation.isError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {(mutation.error as Error).message}
+          </div>
+        ) : null}
+
         <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
           <span className="h-px flex-1 bg-slate-200" />
           <span>or continue with</span>
           <span className="h-px flex-1 bg-slate-200" />
         </div>
 
-        <Button variant="secondary" className="w-full text-slate-900">
+        <Button
+          variant="secondary"
+          className="w-full text-slate-900 cursor-pointer"
+        >
           <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-sm font-bold text-slate-700 shadow-sm">
             G
           </span>
@@ -188,18 +200,6 @@ export function LoginForm() {
             Create an account
           </Link>
         </p>
-
-        {mutation.isSuccess ? (
-          <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-            Login successfully. Session tokens are stored in the auth store.
-          </div>
-        ) : null}
-
-        {mutation.isError ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {(mutation.error as Error).message}
-          </div>
-        ) : null}
       </div>
     </Card>
   );

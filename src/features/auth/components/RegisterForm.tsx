@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { startNavigationProgress } from '@/shared/lib/navigation-progress';
 import { useForm } from '@tanstack/react-form';
 import { ArrowRight, Lock, Mail, UserRound } from 'lucide-react';
 import Link from 'next/link';
@@ -27,6 +28,8 @@ export function RegisterForm() {
   const setEmail = useAuthStore((state) => state.setEmail);
   const mutation = useRegisterMutation();
 
+  console.log('mut', mutation);
+
   const form = useForm({
     defaultValues: {
       firstName: '',
@@ -40,6 +43,7 @@ export function RegisterForm() {
     onSubmit: async ({ value }) => {
       const response = await mutation.mutateAsync(value);
       setEmail(response.data.email);
+      startNavigationProgress();
       router.push('/otp');
     },
   });
@@ -83,7 +87,6 @@ export function RegisterForm() {
                       }
                       placeholder="Nguyen Van"
                       className="pl-11"
-                      required
                     />
                   </div>
                   {field.state.meta.errors.length ? (
@@ -106,7 +109,6 @@ export function RegisterForm() {
                     onBlur={field.handleBlur}
                     onChange={(event) => field.handleChange(event.target.value)}
                     placeholder="A"
-                    required
                   />
                   {field.state.meta.errors.length ? (
                     <p className="text-sm text-rose-600">
@@ -128,7 +130,7 @@ export function RegisterForm() {
                     <Input
                       id={field.name}
                       name={field.name}
-                      type="email"
+                      type="text"
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(event) =>
@@ -136,7 +138,6 @@ export function RegisterForm() {
                       }
                       placeholder="you@nodemind.app"
                       className="pl-11"
-                      required
                     />
                   </div>
                   {field.state.meta.errors.length ? (
@@ -165,7 +166,6 @@ export function RegisterForm() {
                       }
                       placeholder="Create a password"
                       className="pl-11"
-                      required
                     />
                   </div>
                   {field.state.meta.errors.length ? (
@@ -187,7 +187,7 @@ export function RegisterForm() {
             {({ canSubmit, isSubmitting }) => (
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full cursor-pointer"
                 disabled={!canSubmit || isSubmitting || mutation.isPending}
               >
                 {isSubmitting || mutation.isPending ? (
@@ -203,13 +203,22 @@ export function RegisterForm() {
           </form.Subscribe>
         </form>
 
+        {mutation.isError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {(mutation.error as Error).message}
+          </div>
+        ) : null}
+
         <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
           <span className="h-px flex-1 bg-slate-200" />
           <span>or sign up with</span>
           <span className="h-px flex-1 bg-slate-200" />
         </div>
 
-        <Button variant="secondary" className="w-full text-slate-900">
+        <Button
+          variant="secondary"
+          className="w-full text-slate-900 cursor-pointer"
+        >
           <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-sm font-bold text-slate-700 shadow-sm">
             G
           </span>
@@ -225,12 +234,6 @@ export function RegisterForm() {
             Log in
           </Link>
         </p>
-
-        {mutation.isError ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {(mutation.error as Error).message}
-          </div>
-        ) : null}
       </div>
     </Card>
   );

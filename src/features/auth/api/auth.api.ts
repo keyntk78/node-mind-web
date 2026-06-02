@@ -1,4 +1,5 @@
-import { apiConfig } from '@/shared/lib/axios';
+import { api } from '@/shared/lib/axios';
+import axios from 'axios';
 import type {
   ApiResponse,
   AuthSession,
@@ -10,43 +11,33 @@ import type {
   ResendOtpResponse,
 } from '../types/auth.type';
 
+type ApiErrorResponse = {
+  message?: string;
+  error?: string;
+  code?: string;
+};
+
 async function requestAuth<TData>(
   path: string,
   body: unknown,
 ): Promise<ApiResponse<TData>> {
-  const response = await fetch(`${apiConfig.authBaseURL}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
+  try {
+    const { data } = await api.post<ApiResponse<TData>>(`v1/auth${path}`, body);
 
-  const payload = (await response.json().catch(() => null)) as
-    | ApiResponse<TData>
-    | { message?: string; error?: string; code?: string }
-    | null;
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError<ApiErrorResponse>(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data?.code ||
+        error.message;
 
-  if (!response.ok) {
-    const errorPayload = payload as {
-      message?: string;
-      error?: string;
-      code?: string;
-    } | null;
-    const message =
-      errorPayload?.message ||
-      errorPayload?.error ||
-      errorPayload?.code ||
-      `Request failed with status ${response.status}.`;
+      throw new Error(message);
+    }
 
-    throw new Error(message);
+    throw error;
   }
-
-  if (!payload || !('data' in payload)) {
-    throw new Error('API response is missing data.');
-  }
-
-  return payload;
 }
 
 export async function loginUser(payload: LoginPayload) {

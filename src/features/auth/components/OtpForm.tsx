@@ -1,7 +1,11 @@
 'use client';
 
+import { Button } from '@/shared/components/ui/button';
+import { Card } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { startNavigationProgress } from '@/shared/lib/navigation-progress';
 import { useForm } from '@tanstack/react-form';
-import Link from 'next/link';
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,13 +13,11 @@ import {
   MailCheck,
   RotateCcw,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useResendOtpMutation, useVerifyOtpMutation } from '../api/auth.query';
 import { otpSchema } from '../schemas/auth.schema';
 import { useAuthStore } from '../stores/auth.store';
-import { Button } from '@/shared/components/ui/button';
-import { Card } from '@/shared/components/ui/card';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
 
 function fieldError(errors: unknown[]) {
   return errors
@@ -28,6 +30,7 @@ function fieldError(errors: unknown[]) {
 }
 
 export function OtpForm() {
+  const router = useRouter();
   const email = useAuthStore((state) => state.email);
   const setEmail = useAuthStore((state) => state.setEmail);
   const setSession = useAuthStore((state) => state.setSession);
@@ -46,6 +49,8 @@ export function OtpForm() {
       const response = await verifyMutation.mutateAsync(value);
       setEmail(response.data.user.email);
       setSession(response.data);
+      startNavigationProgress();
+      router.replace('/workspace');
     },
   });
 
@@ -86,6 +91,7 @@ export function OtpForm() {
                     id={field.name}
                     name={field.name}
                     type="email"
+                    disabled={true}
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(event) => {
@@ -94,7 +100,6 @@ export function OtpForm() {
                     }}
                     placeholder="you@nodemind.app"
                     className="pl-11"
-                    required
                   />
                 </div>
                 {field.state.meta.errors.length ? (
@@ -124,7 +129,6 @@ export function OtpForm() {
                   autoComplete="one-time-code"
                   placeholder="000000"
                   className="h-16 text-center text-2xl font-semibold tracking-[0.5em] sm:text-3xl"
-                  required
                 />
                 {field.state.meta.errors.length ? (
                   <p className="text-sm text-rose-600">
@@ -146,7 +150,7 @@ export function OtpForm() {
               <div className="space-y-3">
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   disabled={
                     !canSubmit || isSubmitting || verifyMutation.isPending
                   }
@@ -177,6 +181,12 @@ export function OtpForm() {
           </form.Subscribe>
         </form>
 
+        {verifyMutation.isError || resendMutation.isError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {((verifyMutation.error || resendMutation.error) as Error).message}
+          </div>
+        ) : null}
+
         <Link
           href="/login"
           className="inline-flex w-full items-center justify-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950"
@@ -185,23 +195,10 @@ export function OtpForm() {
           Back to login
         </Link>
 
-        {verifyMutation.isSuccess ? (
-          <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-            Email verified successfully. Session tokens are stored in the auth
-            store.
-          </div>
-        ) : null}
-
         {resendMutation.isSuccess ? (
           <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
             Verification OTP resent. It expires in{' '}
             {resendMutation.data.data.expiresIn} seconds.
-          </div>
-        ) : null}
-
-        {verifyMutation.isError || resendMutation.isError ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {((verifyMutation.error || resendMutation.error) as Error).message}
           </div>
         ) : null}
       </div>
