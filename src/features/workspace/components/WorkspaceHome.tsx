@@ -1,6 +1,13 @@
 'use client';
 
+import {
+  clearClientAuthCookies,
+  getClientRefreshToken,
+} from '@/features/auth/lib/auth-cookie';
+import { useLogoutMutation } from '@/features/auth/api/auth.query';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   AppWindow,
   Bell,
@@ -33,17 +40,18 @@ import {
   workspaces,
 } from '@/features/workspace/mock-data';
 import { cn } from '@/shared/lib/utils';
+import { startNavigationProgress } from '@/shared/lib/navigation-progress';
 
 type WorkspaceHomeProps = {
   workspaceSlug: string;
 };
 
 const primaryNav = [
-  { label: 'Home', href: '/kiet', icon: Home, active: true },
-  { label: 'Notes', href: '/kiet/notes', icon: FileText },
-  { label: 'Graph', href: '/kiet/graph', icon: Network },
-  { label: 'AI Assistant', href: '/kiet/ai', icon: Bot },
-  { label: 'Search', href: '/kiet/search', icon: Search },
+  { label: 'Home', path: '', icon: Home, active: true },
+  { label: 'Notes', path: 'notes', icon: FileText },
+  { label: 'Graph', path: 'graph', icon: Network },
+  { label: 'AI Assistant', path: 'ai', icon: Bot },
+  { label: 'Search', path: 'search', icon: Search },
 ];
 
 const statIcons = [NotebookPen, Network, Bot];
@@ -71,11 +79,14 @@ export function WorkspaceHome({ workspaceSlug }: WorkspaceHomeProps) {
           <div className="space-y-1">
             {primaryNav.map((item) => {
               const Icon = item.icon;
+              const href = item.path
+                ? `/${workspaceSlug}/${item.path}`
+                : `/${workspaceSlug}`;
 
               return (
                 <Link
                   key={item.label}
-                  href={item.href}
+                  href={href}
                   className={cn(
                     'flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
                     item.active
@@ -536,6 +547,23 @@ function RightCard({
 }
 
 function AvatarMenu({ workspaceSlug }: { workspaceSlug: string }) {
+  const router = useRouter();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const logoutMutation = useLogoutMutation();
+
+  async function handleLogout() {
+    try {
+      if (getClientRefreshToken()) {
+        await logoutMutation.mutateAsync();
+      }
+    } finally {
+      clearAuth();
+      clearClientAuthCookies();
+      startNavigationProgress();
+      router.replace('/login');
+    }
+  }
+
   return (
     <div className="absolute right-0 top-12 z-[70] w-64 rounded-2xl border border-white/70 bg-white/80 p-2 shadow-2xl shadow-blue-950/10 backdrop-blur-2xl">
       <div className="flex items-center gap-3 border-b border-blue-950/10 px-3 py-3">
@@ -557,13 +585,15 @@ function AvatarMenu({ workspaceSlug }: { workspaceSlug: string }) {
           <Settings className="h-4 w-4" />
           Settings
         </Link>
-        <Link
-          href="/login"
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
           className="flex h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-600 transition hover:bg-blue-50 hover:text-blue-800"
         >
           <LogOut className="h-4 w-4" />
-          Sign out
-        </Link>
+          {logoutMutation.isPending ? 'Signing out...' : 'Sign out'}
+        </button>
       </div>
     </div>
   );

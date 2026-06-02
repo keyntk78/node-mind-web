@@ -36,11 +36,14 @@ export type RegisterResponse = {
   isVerified: boolean;
 };
 
-export type AuthSession = {
+export type AuthTokens = {
   accessToken: string;
   refreshToken: string;
   tokenType: 'Bearer' | string;
   expiresIn: number;
+};
+
+export type AuthSession = AuthTokens & {
   user: AuthUser;
   workspace: WorkspaceContext;
   roles?: string[];
@@ -49,4 +52,8 @@ export type AuthSession = {
 export type ResendOtpResponse = {
   email: string;
   expiresIn: number;
+};
+
+export type LogoutResponse = {
+  loggedOut: boolean;
 };

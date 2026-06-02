@@ -11,6 +11,7 @@ import { ArrowRight, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLoginMutation } from '../api/auth.query';
+import { setClientAuthCookies } from '../lib/auth-cookie';
 import { loginSchema } from '../schemas/auth.schema';
 import { useAuthStore } from '../stores/auth.store';
 
@@ -27,7 +28,7 @@ function fieldError(errors: unknown[]) {
 export function LoginForm() {
   const router = useRouter();
   const setEmail = useAuthStore((state) => state.setEmail);
-  const setSession = useAuthStore((state) => state.setSession);
+  const setAuth = useAuthStore((state) => state.setAuth);
   const rememberMe = useAuthStore((state) => state.rememberMe);
   const toggleRememberMe = useAuthStore((state) => state.toggleRememberMe);
   const mutation = useLoginMutation();
@@ -44,9 +45,10 @@ export function LoginForm() {
     onSubmit: async ({ value }) => {
       const response = await mutation.mutateAsync(value);
       setEmail(response.data.user.email);
-      setSession(response.data);
+      setAuth(response.data);
+      setClientAuthCookies(response.data);
       startNavigationProgress();
-      router.replace('/kiet');
+      router.replace(`/${response.data.workspace.slug}`);
     },
   });
 

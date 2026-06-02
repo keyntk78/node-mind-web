@@ -1,21 +1,51 @@
 import { create } from 'zustand';
-import type { AuthSession } from '../types/auth.type';
+import type {
+  AuthSession,
+  AuthTokens,
+  AuthUser,
+  WorkspaceContext,
+} from '../types/auth.type';
 
 interface AuthState {
+  accessToken: string | null;
   email: string;
   rememberMe: boolean;
-  session: AuthSession | null;
+  roles: string[];
+  user: AuthUser | null;
+  workspace: WorkspaceContext | null;
+  clearAuth: () => void;
   setEmail: (email: string) => void;
-  setSession: (session: AuthSession) => void;
+  setAuth: (session: AuthSession) => void;
+  setTokens: (tokens: AuthTokens) => void;
   toggleRememberMe: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
   email: '',
   rememberMe: true,
-  session: null,
+  roles: [],
+  user: null,
+  workspace: null,
+  clearAuth: () =>
+    set({
+      accessToken: null,
+      roles: [],
+      user: null,
+      workspace: null,
+    }),
   setEmail: (email: string) => set({ email }),
-  setSession: (session: AuthSession) =>
-    set({ email: session.user.email, session }),
+  setAuth: (session: AuthSession) =>
+    set({
+      accessToken: session.accessToken,
+      email: session.user.email,
+      roles: session.roles ?? [],
+      user: session.user,
+      workspace: session.workspace,
+    }),
+  setTokens: (tokens: AuthTokens) =>
+    set({
+      accessToken: tokens.accessToken,
+    }),
   toggleRememberMe: () => set((state) => ({ rememberMe: !state.rememberMe })),
 }));

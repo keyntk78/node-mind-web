@@ -5,7 +5,13 @@ import type {
   RegisterPayload,
   ResendOtpPayload,
 } from '../types/auth.type';
-import { loginUser, registerUser, resendOtp, verifyOtp } from './auth.api';
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  resendOtp,
+  verifyOtp,
+} from './auth.api';
 
 export function useLoginMutation() {
   return useMutation({
@@ -28,5 +34,11 @@ export function useVerifyOtpMutation() {
 export function useResendOtpMutation() {
   return useMutation({
     mutationFn: (payload: ResendOtpPayload) => resendOtp(payload),
+  });
+}
+
+export function useLogoutMutation() {
+  return useMutation({
+    mutationFn: () => logoutUser(),
   });
 }

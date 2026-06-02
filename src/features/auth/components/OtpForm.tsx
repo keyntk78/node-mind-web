@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useResendOtpMutation, useVerifyOtpMutation } from '../api/auth.query';
+import { setClientAuthCookies } from '../lib/auth-cookie';
 import { otpSchema } from '../schemas/auth.schema';
 import { useAuthStore } from '../stores/auth.store';
 
@@ -33,7 +34,7 @@ export function OtpForm() {
   const router = useRouter();
   const email = useAuthStore((state) => state.email);
   const setEmail = useAuthStore((state) => state.setEmail);
-  const setSession = useAuthStore((state) => state.setSession);
+  const setAuth = useAuthStore((state) => state.setAuth);
   const verifyMutation = useVerifyOtpMutation();
   const resendMutation = useResendOtpMutation();
 
@@ -48,9 +49,10 @@ export function OtpForm() {
     onSubmit: async ({ value }) => {
       const response = await verifyMutation.mutateAsync(value);
       setEmail(response.data.user.email);
-      setSession(response.data);
+      setAuth(response.data);
+      setClientAuthCookies(response.data);
       startNavigationProgress();
-      router.replace('/kiet');
+      router.replace(`/${response.data.workspace.slug}`);
     },
   });
 

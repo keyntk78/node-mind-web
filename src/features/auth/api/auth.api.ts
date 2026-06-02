@@ -1,9 +1,11 @@
 import { api } from '@/shared/lib/axios';
 import axios from 'axios';
+import { getClientRefreshToken } from '../lib/auth-cookie';
 import type {
   ApiResponse,
   AuthSession,
   LoginPayload,
+  LogoutResponse,
   OtpPayload,
   RegisterPayload,
   RegisterResponse,
@@ -54,4 +56,10 @@ export async function verifyOtp(payload: OtpPayload) {
 
 export async function resendOtp(payload: ResendOtpPayload) {
   return requestAuth<ResendOtpResponse>('/resend-verification-otp', payload);
+}
+
+export async function logoutUser() {
+  const refreshToken = getClientRefreshToken();
+
+  return requestAuth<LogoutResponse>('/logout', { refreshToken });
 }
