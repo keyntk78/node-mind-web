@@ -3,12 +3,13 @@ import {
   ArrowUpRight,
   ChevronRight,
   FileText,
-  Link,
+  Link as LinkIcon,
   MoreHorizontal,
   Plus,
   StarOff,
   Trash2,
 } from 'lucide-react';
+import NextLink from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -66,7 +67,13 @@ type CreatePageDialogState = {
   parentTitle?: string;
 };
 
-export function NavPrivate({ workspaceId }: { workspaceId?: string }) {
+export function NavPrivate({
+  workspaceId,
+  workspaceSlug,
+}: {
+  workspaceId?: string;
+  workspaceSlug?: string;
+}) {
   const { isMobile } = useSidebar();
   const [createDialog, setCreateDialog] = React.useState<CreatePageDialogState>(
     {
@@ -124,6 +131,7 @@ export function NavPrivate({ workspaceId }: { workspaceId?: string }) {
               }
               page={page}
               workspaceId={workspaceId}
+              workspaceSlug={workspaceSlug}
               level={1}
             />
           ))}
@@ -176,16 +184,21 @@ function PrivatePageItem({
   isMobile,
   page,
   workspaceId,
+  workspaceSlug,
   level,
   onCreateChild,
 }: {
   isMobile: boolean;
   page: PageTreeItem;
   workspaceId?: string;
+  workspaceSlug?: string;
   level: number;
   onCreateChild?: (page: PageTreeItem) => void;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const pageHref = workspaceSlug
+    ? `/${encodeURIComponent(workspaceSlug)}/page/${encodeURIComponent(page.id)}`
+    : '#';
   const hasChildren = level < MAX_PAGE_DEPTH && page.hasChildren;
   const canAddChild = level < MAX_PAGE_DEPTH;
   const {
@@ -250,7 +263,7 @@ function PrivatePageItem({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <Link className="text-muted-foreground" />
+            <LinkIcon className="text-muted-foreground" />
             <span>Copy Link</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
@@ -286,7 +299,7 @@ function PrivatePageItem({
       <SidebarMenuItem>
         <SidebarMenuButton
           className={actionsRightPadding}
-          render={<a href={`#${page.id}`} />}
+          render={<NextLink href={pageHref} />}
           style={buttonStyle}
         >
           {label}
@@ -315,6 +328,7 @@ function PrivatePageItem({
                   key={subPage.id}
                   page={subPage}
                   workspaceId={workspaceId}
+                  workspaceSlug={workspaceSlug}
                   level={level + 1}
                   onCreateChild={onCreateChild}
                 />
@@ -350,7 +364,7 @@ function PrivatePageItem({
     <SidebarMenuSubItem className="group/menu-item">
       <SidebarMenuSubButton
         className={actionsRightPadding}
-        render={<a href={`#${page.id}`} />}
+        render={<NextLink href={pageHref} />}
         style={buttonStyle}
       >
         {label}
@@ -379,6 +393,7 @@ function PrivatePageItem({
                 key={subPage.id}
                 page={subPage}
                 workspaceId={workspaceId}
+                workspaceSlug={workspaceSlug}
                 level={level + 1}
                 onCreateChild={onCreateChild}
               />

@@ -77,7 +77,7 @@ const data = {
 export function SidebarLeft({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const workspaceId = useAuthStore((state) => state.workspace?.id);
+  const workspace = useAuthStore((state) => state.workspace);
 
   return (
     <Sidebar className="border-r-0" {...props}>
@@ -86,7 +86,10 @@ export function SidebarLeft({
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <SidebarContent>
-        <NavPrivate workspaceId={workspaceId} />
+        <NavPrivate
+          workspaceId={workspace?.id}
+          workspaceSlug={workspace?.slug}
+        />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarRail />

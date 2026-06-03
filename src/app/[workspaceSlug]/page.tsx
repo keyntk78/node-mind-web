@@ -7,5 +7,5 @@ type WorkspacePageProps = {
 export default async function WorkspacePage({ params }: WorkspacePageProps) {
   // const { workspaceSlug } = await params;
 
-  return <>Hello</>;
+  return <>Home</>;
 }

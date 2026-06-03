@@ -1,5 +1,16 @@
 import { SidebarLeft } from '@/features/workspace/components/layout/sidebar-left';
-import { SidebarProvider } from '@/shared/components/ui/sidebar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from '@/shared/components/ui/breadcrumb';
+import { Separator } from '@/shared/components/ui/separator';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/shared/components/ui/sidebar';
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
 
@@ -17,7 +28,7 @@ export default function layout({
   return (
     <SidebarProvider>
       <SidebarLeft />
-      {/* <SidebarInset>
+      <SidebarInset>
         <header className="sticky top-0 flex h-14 shrink-0 items-center gap-2 bg-background">
           <div className="flex flex-1 items-center gap-2 px-3">
             <SidebarTrigger />
@@ -36,10 +47,9 @@ export default function layout({
             </Breadcrumb>
           </div>
         </header>
-        <main className="flex-1 p-10 overflow-hidden">{children}</main>
-      </SidebarInset> */}
+        <main className="">{children}</main>
+      </SidebarInset>
       {/* <SidebarRight /> */}
-      <main className="flex-1 p-10 overflow-hidden">{children}</main>
     </SidebarProvider>
   );
 }
