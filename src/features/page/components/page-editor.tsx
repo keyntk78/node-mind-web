@@ -11,7 +11,8 @@ import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef } from 'react';
+import { useTheme } from 'next-themes';
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 
 type PersistedEditorBlock = PartialBlock & {
   id: string;
@@ -34,8 +35,18 @@ type PageEditorProps = {
   initialBlocks?: PersistedBlock[];
 };
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export function PageEditor({ pageId, initialBlocks = [] }: PageEditorProps) {
   const queryClient = useQueryClient();
+  const { resolvedTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerSnapshot,
+  );
 
   const editorInitialBlocks = useMemo(() => {
     return [...initialBlocks]
@@ -76,6 +87,7 @@ export function PageEditor({ pageId, initialBlocks = [] }: PageEditorProps) {
   );
 
   const reorderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const editorTheme = mounted && resolvedTheme === 'dark' ? 'dark' : 'light';
 
   useEffect(() => {
     const updateTimers = updateTimersRef.current;
@@ -163,7 +175,7 @@ export function PageEditor({ pageId, initialBlocks = [] }: PageEditorProps) {
     <div className="w-full">
       <BlockNoteView
         editor={editor}
-        theme="light"
+        theme={editorTheme}
         className="min-h-125 w-full rounded-none border-none bg-transparent px-0 shadow-none"
         shadCNComponents={{}}
         onChange={() => {

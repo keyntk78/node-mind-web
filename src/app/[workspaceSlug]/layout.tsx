@@ -1,4 +1,5 @@
 import { SidebarLeft } from '@/features/workspace/components/layout/sidebar-left';
+import { LocaleThemeControls } from '@/shared/components/LocaleThemeControls';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +14,7 @@ import {
 } from '@/shared/components/ui/sidebar';
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: 'Node Mind',
@@ -20,16 +22,18 @@ export const metadata: Metadata = {
     'Authentication screens for Node Mind, an AI-powered note-taking and knowledge graph platform.',
 };
 
-export default function layout({
+export default async function layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const t = await getTranslations('common');
+
   return (
     <SidebarProvider>
       <SidebarLeft />
       <SidebarInset>
-        <header className="sticky top-0 flex h-14 shrink-0 items-center gap-2 bg-background">
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background">
           <div className="flex flex-1 items-center gap-2 px-3">
             <SidebarTrigger />
             <Separator
@@ -40,11 +44,14 @@ export default function layout({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage className="line-clamp-1">
-                    Project Management & Task Tracking
+                    {t('workspaceTitle')}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="px-3">
+            <LocaleThemeControls />
           </div>
         </header>
         <main className="">{children}</main>

@@ -1,0 +1,19 @@
+{
+  "common": {
+    "language": "Language",
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "workspaceTitle": "Project Management & Task Tracking",
+    "member": "Member",
+    "manageMembers": "Manage Members",
+    "settings": "Settings",
+    "newWorkspace": "New Workspace",
+    "logout": "Logout"
+  },
+  "workspace": {
+    "member": "Member"
+  }
+}

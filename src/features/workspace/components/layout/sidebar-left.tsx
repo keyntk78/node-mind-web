@@ -1,21 +1,12 @@
 'use client';
 
-import {
-  AudioWaveform,
-  Command,
-  Home,
-  Network,
-  Search,
-  Sparkles,
-  Trash2,
-} from 'lucide-react';
+import { Home, Network, Search, Sparkles, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { NavMain } from '@/features/workspace/components/layout/nav-main';
 import { NavPrivate } from '@/features/workspace/components/layout/nav-private';
 import { NavSecondary } from '@/features/workspace/components/layout/nav-secondary';
-import { TeamSwitcher } from '@/features/workspace/components/layout/team-switcher';
 import {
   Sidebar,
   SidebarContent,
@@ -23,24 +14,9 @@ import {
   SidebarRail,
 } from '@/shared/components/ui/sidebar';
 
+import { WorkspaceSwitcherContainer } from '../containers/workspace-switcher-container';
+
 const data = {
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: Command,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
   navMain: [
     {
       title: 'Home',
@@ -82,7 +58,8 @@ export function SidebarLeft({
   return (
     <Sidebar className="border-r-0" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {/* <WorkspaceSwitcher /> */}
+        <WorkspaceSwitcherContainer />
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <SidebarContent>

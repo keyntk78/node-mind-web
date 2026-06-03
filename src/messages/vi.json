@@ -1,0 +1,19 @@
+{
+  "common": {
+    "language": "Ngon ngu",
+    "vietnamese": "Tieng Viet",
+    "english": "Tieng Anh",
+    "theme": "Giao dien",
+    "light": "Sang",
+    "dark": "Toi",
+    "workspaceTitle": "Quan ly du an & cong viec",
+    "member": "Thành viên",
+    "manageMembers": "Quản lý thành viên",
+    "settings": "Cài đặt",
+    "newWorkspace": "Không gian làm việc mới",
+    "logout": "Đăng xuất"
+  },
+  "workspace": {
+    "member": "Thành viên"
+  }
+}
