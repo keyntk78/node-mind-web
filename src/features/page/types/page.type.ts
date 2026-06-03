@@ -1,4 +1,4 @@
-import type { PartialBlock } from '@blocknote/core';
+import type { Block } from '@/features/page/types/block.type';
 
 export type Page = {
   id: string;
@@ -12,7 +12,7 @@ export type Page = {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
-  blocks: (PartialBlock & { id: string })[];
+  blocks: Block[];
 };
 
 export type UpdatePagePayload = {

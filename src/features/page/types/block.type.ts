@@ -22,3 +22,20 @@ export type CreateBlockPayload = {
 export type UpdateBlockPayload = {
   content: BlockContent;
 };
+
+export type ReorderBlockItem = {
+  id: string;
+  orderIndex: number;
+};
+
+export type ReorderBlocksPayload = {
+  blocks: ReorderBlockItem[];
+};
+
+export type ReorderBlocksResult = {
+  pageId: string;
+};
+
+export type DeleteBlockResult = {
+  id: string;
+};
