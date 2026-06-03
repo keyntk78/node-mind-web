@@ -22,6 +22,41 @@ export const api = axios.create({
   },
 });
 
+const authApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 10000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+let refreshPromise: Promise<AuthTokens> | null = null;
+
+export async function refreshAuthTokens() {
+  const refreshToken = getClientRefreshToken();
+
+  if (!refreshToken) {
+    throw new Error('Missing refresh token');
+  }
+
+  refreshPromise ??= authApi
+    .post<ApiResponse<AuthTokens>>('v1/auth/refresh', {
+      refreshToken,
+    })
+    .then(({ data }) => {
+      useAuthStore.getState().setTokens(data.data);
+      setClientAccessTokenCookie(data.data);
+
+      return data.data;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
 api.interceptors.request.use((config) => {
   const accessToken =
     useAuthStore.getState().accessToken ?? getClientAccessToken();
@@ -48,26 +83,9 @@ api.interceptors.response.use(
     }
 
     originalRequest._retry = true;
-    const refreshToken = getClientRefreshToken();
-
-    if (!refreshToken) {
-      useAuthStore.getState().clearAuth();
-      clearClientAuthCookies();
-
-      return Promise.reject(error);
-    }
-
     try {
-      const { data } = await api.post<ApiResponse<AuthTokens>>(
-        'v1/auth/refresh',
-        {
-          refreshToken,
-        },
-      );
-
-      useAuthStore.getState().setTokens(data.data);
-      setClientAccessTokenCookie(data.data);
-      originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+      const tokens = await refreshAuthTokens();
+      originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
 
       return api(originalRequest);
     } catch (refreshError) {

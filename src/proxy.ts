@@ -16,9 +16,11 @@ function isPublicRoute(pathname: string) {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get('accessToken')?.value;
+  const authSession = request.cookies.get('authSession')?.value;
   const workspaceSlug = request.cookies.get('workspaceSlug')?.value;
+  const hasSession = Boolean(accessToken || authSession);
 
-  if (!accessToken && !isPublicRoute(pathname)) {
+  if (!hasSession && !isPublicRoute(pathname)) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('next', pathname);
 
@@ -26,14 +28,14 @@ export function proxy(request: NextRequest) {
   }
 
   if (
-    accessToken &&
+    hasSession &&
     workspaceSlug &&
     authRoutes.some((route) => isRoute(pathname, route))
   ) {
     return NextResponse.redirect(new URL(`/${workspaceSlug}`, request.url));
   }
 
-  if (accessToken && pathname === '/' && workspaceSlug) {
+  if (hasSession && pathname === '/' && workspaceSlug) {
     return NextResponse.redirect(new URL(`/${workspaceSlug}`, request.url));
   }
 

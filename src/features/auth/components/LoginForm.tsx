@@ -133,11 +133,13 @@ export function LoginForm() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Checkbox
-              label="Remember me"
-              checked={rememberMe}
-              onChange={toggleRememberMe}
-            />
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
+              <Checkbox
+                checked={rememberMe}
+                onCheckedChange={toggleRememberMe}
+              />
+              Remember me
+            </label>
             <Link
               href="/login"
               className="text-sm font-medium text-sky-600 hover:text-sky-700"

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { getClientRefreshToken } from '../lib/auth-cookie';
 import type {
   ApiResponse,
+  AuthContext,
   AuthSession,
   LoginPayload,
   LogoutResponse,
@@ -56,6 +57,26 @@ export async function verifyOtp(payload: OtpPayload) {
 
 export async function resendOtp(payload: ResendOtpPayload) {
   return requestAuth<ResendOtpResponse>('/resend-verification-otp', payload);
+}
+
+export async function getCurrentUser() {
+  try {
+    const { data } = await api.get<ApiResponse<AuthContext>>('v1/auth/me');
+
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError<ApiErrorResponse>(error)) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data?.code ||
+        error.message;
+
+      throw new Error(message);
+    }
+
+    throw error;
+  }
 }
 
 export async function logoutUser() {

@@ -43,11 +43,13 @@ export type AuthTokens = {
   expiresIn: number;
 };
 
-export type AuthSession = AuthTokens & {
+export type AuthContext = {
   user: AuthUser;
   workspace: WorkspaceContext;
   roles?: string[];
 };
+
+export type AuthSession = AuthTokens & AuthContext;
 
 export type ResendOtpResponse = {
   email: string;

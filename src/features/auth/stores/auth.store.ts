@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type {
+  AuthContext,
   AuthSession,
   AuthTokens,
   AuthUser,
@@ -16,6 +17,7 @@ interface AuthState {
   clearAuth: () => void;
   setEmail: (email: string) => void;
   setAuth: (session: AuthSession) => void;
+  setAuthContext: (context: AuthContext) => void;
   setTokens: (tokens: AuthTokens) => void;
   toggleRememberMe: () => void;
 }
@@ -42,6 +44,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       roles: session.roles ?? [],
       user: session.user,
       workspace: session.workspace,
+    }),
+  setAuthContext: (context: AuthContext) =>
+    set({
+      email: context.user.email,
+      roles: context.roles ?? [],
+      user: context.user,
+      workspace: context.workspace,
     }),
   setTokens: (tokens: AuthTokens) =>
     set({

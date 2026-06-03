@@ -1,6 +1,7 @@
-import type { AuthSession, AuthTokens } from '../types/auth.type';
+import type { AuthContext, AuthSession, AuthTokens } from '../types/auth.type';
 
 const accessTokenCookieName = 'accessToken';
+const authSessionCookieName = 'authSession';
 const refreshTokenStorageKey = 'refreshToken';
 const workspaceSlugCookieName = 'workspaceSlug';
 
@@ -13,14 +14,18 @@ function cookieOptions(maxAge?: number) {
 
 export function setClientAuthCookies(session: AuthSession) {
   setClientAccessTokenCookie(session);
+  setClientAuthContextCookies(session);
+}
 
+export function setClientAuthContextCookies(context: AuthContext) {
   if (typeof document === 'undefined') {
     return;
   }
 
   document.cookie = `${workspaceSlugCookieName}=${encodeURIComponent(
-    session.workspace.slug,
-  )}; ${cookieOptions(session.expiresIn)}`;
+    context.workspace.slug,
+  )}; ${cookieOptions()}`;
+  document.cookie = `${authSessionCookieName}=1; ${cookieOptions()}`;
 }
 
 export function setClientAccessTokenCookie(tokens: AuthTokens) {
@@ -33,6 +38,7 @@ export function setClientAccessTokenCookie(tokens: AuthTokens) {
   )}; ${cookieOptions(tokens.expiresIn)}`;
 
   localStorage.setItem(refreshTokenStorageKey, tokens.refreshToken);
+  document.cookie = `${authSessionCookieName}=1; ${cookieOptions()}`;
 }
 
 export function getClientAccessToken() {
@@ -68,6 +74,7 @@ export function clearClientAuthCookies() {
   }
 
   document.cookie = `${accessTokenCookieName}=; ${cookieOptions(-1)}`;
+  document.cookie = `${authSessionCookieName}=; ${cookieOptions(-1)}`;
   document.cookie = `${workspaceSlugCookieName}=; ${cookieOptions(-1)}`;
   localStorage.removeItem(refreshTokenStorageKey);
 }
